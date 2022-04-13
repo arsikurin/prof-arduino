@@ -1,7 +1,7 @@
 to increase(num)
   tell application "System Events"
     repeat num as integer
-      delay 0.05
+      delay .05
       key code 144
     end repeat
   end tell
@@ -10,7 +10,7 @@ end increase
 to decrease(num)
   tell application "System Events"
     repeat num as integer
-      delay 0.05
+      delay .05
       key code 145
     end repeat
   end tell
