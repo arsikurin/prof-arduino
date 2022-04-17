@@ -7,7 +7,7 @@ authors = ["arsikurin <2024kurin.av@student.letovo.ru>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
-screen-brightness-control = "^0.12.0"
+screen-brightness-control = {version="^0.12.0", markers="sys_platform == 'linux' or sys_platform == 'win32'"}
 
 [tool.poetry.dev-dependencies]
 

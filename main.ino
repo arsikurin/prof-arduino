@@ -1,7 +1,15 @@
 #include <Wire.h>
 #include <SparkFun_VL6180X.h>
-
 #define VL6180X_ADDRESS 0x29
+
+const int pingPin = 7;                       // Trigger Pin of Ultrasonic Sensor
+const int echoPin = 6;                       // Echo Pin of Ultrasonic Sensor
+const int maxVal = 120;                      // max value of light scope (450)
+const int minVal = 0;                        // min value og light scope
+int counter = 0;
+int light = 0;
+int lightPercent = 0;
+int distance;
 
 VL6180xIdentification identification;
 VL6180x sensor(VL6180X_ADDRESS);
@@ -11,9 +19,9 @@ void setup() {
   Wire.begin();                              // Start I2C library
   delay(100);
 
-  int maxVal = 450;                          // max value of light scope
-  int minVal = 3;                            // min value og light scope
   pinMode(3, OUTPUT);
+  pinMode(pingPin, OUTPUT);
+  pinMode(echoPin, INPUT);
   sensor.getIdentification(&identification); // Retrieve manufacture info from device memory
   printIdentification(&identification);      // Helper function to print all the Module information
 
@@ -28,31 +36,52 @@ void setup() {
 }
 
 void loop() {
-  int lightLevel = sensor.getAmbientLight(GAIN_1);
-  int distance = sensor.getDistance();
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(pingPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  distance = microsecondsToCentimeters(duration);
 
-  Serial.print("Ambient Light Level (Lux) = ");
-  Serial.println(lightLevel);
+  //  Serial.print(distance);
+  //  Serial.println("cm");
 
-  Serial.print("Distance measured (mm) = ");
-  Serial.println(distance);
+  if (distance > 50) {
+    counter++;
 
-  if (lightLevel >= maxVal) {
-    lightLevel = 0;
-  } else if (lightLevel <= minVal) {
-    lightLevel = 255;
+    if (counter > 6) {
+      Serial.println("dist");
+      light = 0;
+      lightPercent = 0;
+      counter = 0;
+    }
   } else {
-    lightLevel = map(lightLevel, minVal, maxVal, 255, 0);
-  }
-  analogWrite(3, lightLevel);
+    light = sensor.getAmbientLight(GAIN_1);
+    lightPercent = light;
+    //  Serial.print("Ambient Light Level (Lux) = ");
+    //  Serial.println(light);
 
-  if (Serial.available()) {
-    Serial.write(lightLevel);
+    if (light >= maxVal) {
+      light = 255;
+      lightPercent = 100;
+    } else if (light <= minVal) {
+      light = 0;
+      lightPercent = 0;
+    } else {
+      lightPercent = map(light, minVal, maxVal, 0, 100);
+      light = map(light, minVal, maxVal, 0, 255);
+    }
   }
+  analogWrite(3, light);
+  Serial.println(lightPercent);
 }
 
-void printIdentification(struct VL6180xIdentification *temp)
-{
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
+}
+
+void printIdentification(struct VL6180xIdentification *temp) {
   Serial.print("Model ID = ");
   Serial.println(temp->idModel);
 

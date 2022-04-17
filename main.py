@@ -1,50 +1,38 @@
-import platform
-import time
+import sys
 
-# import serial
+import serial
 
-# arduino = serial.Serial("/dev/cu.usbserial-10", 9600)
+PORT = "/dev/cu.usbserial-210"
 
-with open("lib.scpt", mode="r") as f:
-    cmd = f.read()
+try:
+    arduino = serial.Serial(PORT, 9600)
+except serial.serialutil.SerialException as err:
+    print(err)
+    sys.exit(1)
 
-if platform.system() == "Darwin":
+if sys.platform == "darwin":
     import subprocess
 
 
-    def increase(repeat: int = 1):
+    def set_brightness(target: int):
         subprocess.run(
-            args=['osascript', '-e', cmd, "1", str(repeat)], capture_output=True
+            args=["./brightness", f"{target / 100}"],
+            capture_output=True
         )
-
-
-    def decrease(repeat: int = 1):
-        subprocess.run(
-            args=['osascript', '-e', cmd, str(repeat)], capture_output=True
-        )
-    # decrease = ft.partial(subprocess.run, args=['osascript', '-e', cmd], capture_output=True)
-
-elif platform.system() in {"Linux", "Windows"}:
+elif sys.platform in {"linux", "win32"}:
     import screen_brightness_control as sbc
 
 
-    def increase(repeat: int = 1):
-        sbc.fade_brightness(
-            finish=sbc.get_brightness()[0] + 10 * repeat, start=sbc.get_brightness()[0], blocking=False, increment=10
-        )
-
-
-    def decrease(repeat: int = 1):
-        sbc.fade_brightness(
-            finish=sbc.get_brightness()[0] - 10 * repeat, start=sbc.get_brightness()[0], blocking=False, increment=10
-        )
-    # decrease = sbc.set_brightness(sbc.get_brightness()[0] - 10)
+    def set_brightness(target: int):
+        sbc.set_brightness(target)
 else:
     raise NotImplemented("Current platform is not supported")
 
 while True:
-    time.sleep(1)
-    decrease(5)
-    # print(arduino.read(256).decode())
+    raw = arduino.readline(256).decode()
+    try:
+        set_brightness(int(raw))
+        print(int(raw), "set")
 
-# arduino.write(bytes(f"${345};"))
+    except ValueError:
+        print(raw, "err")

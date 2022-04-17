@@ -49,7 +49,7 @@ tests = ["pytest"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "66c28a6005ce545280b40dfa3af55707aafb071843b5f32dcaea02b7e5077aa5"
+content-hash = "0454cecf5517e8ed814dcbff0a3850b147739b36c3045f2c09ab465f3a28a83c"
 
 [metadata.files]
 pyserial = [
