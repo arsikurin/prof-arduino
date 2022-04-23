@@ -2,8 +2,8 @@
 #include <SparkFun_VL6180X.h>
 #define VL6180X_ADDRESS 0x29
 
-const int pingPin = 7;                       // Trigger Pin of Ultrasonic Sensor
-const int echoPin = 6;                       // Echo Pin of Ultrasonic Sensor
+const int pingPin = 4;                       // Trigger Pin of Ultrasonic Sensor
+const int echoPin = 5;                       // Echo Pin of Ultrasonic Sensor
 const int maxVal = 120;                      // max value of light scope (450)
 const int minVal = 0;                        // min value og light scope
 int counter = 0;
@@ -47,7 +47,7 @@ void loop() {
   //  Serial.print(distance);
   //  Serial.println("cm");
 
-  if (distance > 50) {
+  if (distance > 70) {
     counter++;
 
     if (counter > 6) {
